@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
 
         // Calculate expiry display
         // Send email with fixed 24hr expiry info
-        const baseUrl = process.env.APP_BASE_URL || process.env.BASE_URL || "https://easyshare-backend-cidx.onrender.com";
+        const baseUrl = "https://easyshare-backend-cidx.onrender.com";
         const downloadLink = `${baseUrl}/files/${file.uuid}`;
 
         await sendMail({
