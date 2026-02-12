@@ -39,9 +39,10 @@ router.post("/", (req, res) => {
         try {
             const saved = await file.save();
             return res.json({
-                file: `${process.env.BASE_URL}/files/${saved.uuid}`,
+                file: `${process.env.APP_BASE_URL || process.env.BASE_URL || "https://easyshare-backend-cidx.onrender.com"}/files/${saved.uuid}`,
                 uuid: saved.uuid
             });
+
         } catch (err) {
             console.error("Database save error:", err);
             return res.status(500).json({ error: "Database error" });

@@ -28,18 +28,22 @@ router.post("/", async (req, res) => {
 
         // Calculate expiry display
         // Send email with fixed 24hr expiry info
+        const baseUrl = process.env.APP_BASE_URL || process.env.BASE_URL || "https://easyshare-backend-cidx.onrender.com";
+        const downloadLink = `${baseUrl}/files/${file.uuid}`;
+
         await sendMail({
             from: emailFrom,
             to: emailTo,
             subject: "easyShare File Sharing",
-            text: `${emailFrom} shared a file with you. Download it here: ${process.env.BASE_URL}/files/${file.uuid}`,
+            text: `${emailFrom} shared a file with you. Download it here: ${downloadLink}`,
             html: emailTemplate({
                 emailFrom,
-                downloadLink: `${process.env.BASE_URL}/files/${file.uuid}`,
+                downloadLink: downloadLink,
                 size: `${parseInt(file.size / 1000)} KB`,
                 expires: "24 hours"
             })
         });
+
 
         return res.json({ success: true });
 
