@@ -26,15 +26,24 @@ app.use(helmet({
 }));
 app.use(mongoSanitize());
 
+const envAllowed = process.env.ALLOWED_CLIENTS;
 const corsOptions = {
-    origin: process.env.ALLOWED_CLIENTS ? process.env.ALLOWED_CLIENTS.split(",") : "*",
-    methods: "GET,POST",
+    origin: envAllowed && envAllowed !== "*"
+        ? [...envAllowed.split(",").map(item => item.trim()), "https://easyshare-frontend-36lu.onrender.com"]
+        : "*",
+    methods: "GET,POST,OPTIONS", // Added OPTIONS for preflight requests
 };
+
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Health Check
+app.get("/health", (req, res) => res.status(200).json({ status: "OK", timestamp: new Date() }));
+
 // Static
+
 app.use(express.static("public"));
 // Note: /uploads is NOT served as static for security (access handled by routes)
 
