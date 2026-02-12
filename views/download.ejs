@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>easyShare | Download File</title>
+    <link rel="stylesheet" href="/style.css">
+    <script>
+        const theme = localStorage.getItem("theme");
+        if (theme === "dark") document.documentElement.classList.add("dark-mode");
+    </script>
+</head>
+
+<body>
+    <button id="themeToggle" class="theme-toggle">🌙</button>
+    <img src="/logo.png" class="site-logo">
+
+    <section class="download">
+        <img class="download__icon" src="/img/download-sd.svg">
+
+        <% if(locals.error){ %>
+            <div class="error-msg">
+                <h4>
+                    <%= locals.error %>
+                </h4>
+            </div>
+            <% } else { %>
+                <h2>Your easyShare download is ready</h2>
+                <p>Link expires in 24 hours</p>
+
+                <div class="download__meta">
+                    <h4>
+                        <%= locals.fileName %>
+                    </h4>
+                    <small>
+                        <%= parseInt(locals.fileSize / 1000) %> KB
+                    </small>
+                </div>
+
+                <div class="send-btn-container">
+                    <a href="/files/download/<%= locals.uuid %>">Download File</a>
+                </div>
+                <% } %>
+    </section>
+
+    <script>
+        const themeToggle = document.getElementById("themeToggle");
+        const currentTheme = localStorage.getItem("theme");
+        if (currentTheme === "dark") {
+            themeToggle.innerText = "☀️";
+        }
+        themeToggle.addEventListener("click", () => {
+            document.documentElement.classList.toggle("dark-mode");
+            const isDark = document.documentElement.classList.contains("dark-mode");
+            localStorage.setItem("theme", isDark ? "dark" : "light");
+            themeToggle.innerText = isDark ? "☀️" : "🌙";
+        });
+    </script>
+</body>
+
+</html>
