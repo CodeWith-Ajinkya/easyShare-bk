@@ -38,8 +38,12 @@ router.post("/", (req, res) => {
 
         try {
             const saved = await file.save();
+
+            // Use environment variable for base URL, fallback to request host
+            const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
+
             return res.json({
-                file: `https://easyshare-backend-cidx.onrender.com/files/${saved.uuid}`,
+                file: `${baseUrl}/files/${saved.uuid}`,
                 uuid: saved.uuid
             });
 

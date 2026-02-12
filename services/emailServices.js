@@ -4,7 +4,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 module.exports = async ({ from, to, subject, text, html }) => {
     const msg = {
         to,
-        from: process.env.MAIL_USER, // Must be verified in SendGrid
+        from: { email: process.env.MAIL_USER, name: "EasyShare" },
         replyTo: from, // The user's email
         subject,
         text,

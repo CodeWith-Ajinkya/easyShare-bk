@@ -26,9 +26,8 @@ router.post("/", async (req, res) => {
         file.receiver = emailTo;
         await file.save();
 
-        // Calculate expiry display
-        // Send email with fixed 24hr expiry info
-        const baseUrl = "https://easyshare-backend-cidx.onrender.com";
+        // Use environment variable for base URL, fallback to request host
+        const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
         const downloadLink = `${baseUrl}/files/${file.uuid}`;
 
         await sendMail({

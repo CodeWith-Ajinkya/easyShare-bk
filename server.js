@@ -28,10 +28,29 @@ app.use(mongoSanitize());
 
 const envAllowed = process.env.ALLOWED_CLIENTS;
 const corsOptions = {
-    origin: envAllowed && envAllowed !== "*"
-        ? [...envAllowed.split(",").map(item => item.trim()), "https://easyshare-frontend-36lu.onrender.com"]
-        : "*",
-    methods: "GET,POST,OPTIONS", // Added OPTIONS for preflight requests
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        const allowedOrigins = envAllowed && envAllowed !== "*"
+            ? [...envAllowed.split(",").map(item => item.trim()), "https://easyshare-frontend-36lu.onrender.com"]
+            : ["*"];
+
+        // If wildcard, allow all
+        if (allowedOrigins.includes("*")) {
+            return callback(null, true);
+        }
+
+        // Check if origin is in allowed list
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.warn(`CORS blocked origin: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: "GET,POST,OPTIONS",
+    credentials: true
 };
 
 
