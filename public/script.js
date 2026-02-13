@@ -9,7 +9,6 @@ const progressFill = document.getElementById("progressFill");
 const progressPercent = document.getElementById("progressPercent");
 
 const shareContainer = document.getElementById("shareContainer");
-const expireText = document.getElementById("expireText");
 const fileLink = document.getElementById("fileLink");
 const copyBtn = document.getElementById("copyBtn");
 const copyToast = document.getElementById("copyToast");
@@ -27,23 +26,6 @@ function showError(msg) {
     errorToast.classList.add("show");
     setTimeout(() => errorToast.classList.remove("show"), 2000);
 }
-
-const uploadAnotherBtn = document.getElementById("uploadAnotherBtn");
-const themeToggle = document.getElementById("themeToggle");
-
-/* THEME TOGGLE */
-const currentTheme = localStorage.getItem("theme");
-if (currentTheme === "dark") {
-    document.documentElement.classList.add("dark-mode");
-    themeToggle.innerText = "☀️";
-}
-
-themeToggle.addEventListener("click", () => {
-    document.documentElement.classList.toggle("dark-mode");
-    const isDark = document.documentElement.classList.contains("dark-mode");
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-    themeToggle.innerText = isDark ? "☀️" : "🌙";
-});
 
 /* BROWSE CLICK */
 browseBtn.addEventListener("click", () => fileInput.click());
@@ -75,6 +57,9 @@ dropZone.addEventListener("drop", e => {
 
 /* UPLOAD FILE */
 function uploadFile(file) {
+
+    // Hide dropzone during upload/result
+    dropZone.style.display = "none";
     progressContainer.style.display = "block";
     shareContainer.style.display = "none";
 
@@ -96,51 +81,70 @@ function uploadFile(file) {
 
     xhr.onload = () => {
         progressContainer.style.display = "none";
-        if (xhr.status !== 200) return showError("Upload failed!");
+
+        if (xhr.status !== 200) {
+            showError("Upload failed!");
+            dropZone.style.display = "block"; // Show dropzone again on error
+            return;
+        }
 
         let res;
+
         try {
             res = JSON.parse(xhr.responseText);
         } catch {
+            dropZone.style.display = "block";
             return showError("Invalid server response!");
         }
 
-        if (!res.file || !res.uuid)
+        if (!res.file || !res.uuid) {
+            dropZone.style.display = "block";
             return showError("Server missing required fields!");
+        }
 
         fileLink.value = res.file;
         uploadedUUID = res.uuid;
-        expireText.innerText = "Link expires in 24 hours";
 
-        dropZone.style.display = "none";
         shareContainer.style.display = "block";
-        fileInput.value = "";
+        fileInput.value = ""; // Clear input
     };
 
     xhr.onerror = () => {
         progressContainer.style.display = "none";
-        showError("Cannot connect to server!");
+        dropZone.style.display = "block";
+        showError("Cannot connect to server! Please check your internet connection.");
+    };
+
+    xhr.ontimeout = () => {
+        progressContainer.style.display = "none";
+        dropZone.style.display = "block";
+        showError("Upload timed out! Please try again.");
     };
 
     xhr.send(formData);
 }
 
+/* UPLOAD ANOTHER (RESET) */
+const reloadBtn = document.getElementById("reloadBtn");
+reloadBtn.addEventListener("click", () => {
+    shareContainer.style.display = "none";
+    dropZone.style.display = "block";
+    fileInput.value = "";
+    uploadedUUID = null;
+    progressFill.style.width = "0%";
+    progressPercent.innerText = "0%";
+    senderEmail.value = "";
+    receiverEmail.value = "";
+});
+
 
 /* COPY LINK */
+
 copyBtn.addEventListener("click", async () => {
     try {
         await navigator.clipboard.writeText(fileLink.value);
         copyToast.classList.add("show");
-
-        const originalText = copyBtn.innerText;
-        copyBtn.innerText = "Copied!";
-        copyBtn.style.background = "#28a745"; // Success green
-
-        setTimeout(() => {
-            copyBtn.innerText = originalText;
-            copyBtn.style.background = ""; // Revert to CSS default
-            copyToast.classList.remove("show");
-        }, 1500);
+        setTimeout(() => copyToast.classList.remove("show"), 1500);
     } catch {
         showError("Copy failed!");
     }
@@ -155,11 +159,6 @@ sendBtn.addEventListener("click", async () => {
     if (!senderEmail.value || !receiverEmail.value)
         return showError("Enter both emails!");
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(senderEmail.value) || !emailRegex.test(receiverEmail.value)) {
-        return showError("Invalid email format!");
-    }
-
     try {
         const res = await fetch(`${API_BASE}/api/files/send`, {
             method: "POST",
@@ -173,23 +172,41 @@ sendBtn.addEventListener("click", async () => {
 
         const data = await res.json();
 
-        if (!data.success)
-            return showError("Email failed!");
+        if (!data.success) {
+            const errorMsg = data.error || "Email failed!";
+            return showError(errorMsg);
+        }
 
         alert("Email sent successfully!");
 
-    } catch {
-        showError("Server not responding!");
+    } catch (err) {
+        console.error("Email error:", err);
+        showError("Server not responding! Please try again later.");
     }
 });
 
-/* RESET UI FOR NEW UPLOAD */
-uploadAnotherBtn.addEventListener("click", () => {
-    uploadedUUID = null;
-    fileInput.value = "";
-    senderEmail.value = "";
-    receiverEmail.value = "";
+/* DARK MODE LOGIC */
+const themeToggle = document.getElementById("themeToggle");
+const body = document.body;
 
-    shareContainer.style.display = "none";
-    dropZone.style.display = "block";
+// Check local storage
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme === "dark") {
+    body.classList.add("dark-mode");
+}
+
+themeToggle.addEventListener("click", () => {
+    body.classList.toggle("dark-mode");
+    const isDark = body.classList.contains("dark-mode");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+});
+
+/* FAQ ACCORDION */
+const faqQuestions = document.querySelectorAll(".faq-question");
+
+faqQuestions.forEach(question => {
+    question.addEventListener("click", () => {
+        const item = question.parentElement;
+        item.classList.toggle("open");
+    });
 });
