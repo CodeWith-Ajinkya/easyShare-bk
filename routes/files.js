@@ -39,19 +39,20 @@ router.post("/", (req, res) => {
         try {
             const saved = await file.save();
 
-            // FORCE use of APP_BASE_URL for production
-            const baseUrl = process.env.APP_BASE_URL;
+            // RENAME to a unique name to ensure no system override
+            const baseUrl = process.env.FINAL_RENDER_URL || process.env.APP_BASE_URL;
 
             if (!baseUrl) {
-                console.error("FATAL ERROR: APP_BASE_URL is missing in .env!");
+                console.error("FATAL ERROR: FINAL_RENDER_URL is missing in .env!");
                 return res.status(500).json({ error: "Server configuration error" });
             }
 
-            console.log(`Generated file link. Using Base URL: ${baseUrl}`);
+            console.log(`[DEBUG] Generating link with Base: ${baseUrl}`);
 
             return res.json({
-                file: `${baseUrl}/files/${saved.uuid}`,
-                uuid: saved.uuid
+                file: `VERIFIED_LINK:${baseUrl}/files/${saved.uuid}`,
+                uuid: saved.uuid,
+                debug: "FIXED_VERSION_FINAL"
             });
 
 
