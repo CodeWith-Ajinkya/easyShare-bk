@@ -26,9 +26,15 @@ router.post("/", async (req, res) => {
         file.receiver = emailTo;
         await file.save();
 
-        // Use environment variable for base URL
-        const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        // FORCE use of APP_BASE_URL
+        const baseUrl = process.env.APP_BASE_URL;
+        if (!baseUrl) {
+            console.error("FATAL ERROR: APP_BASE_URL is missing!");
+            return res.status(500).json({ error: "Server configuration missing" });
+        }
         const downloadLink = `${baseUrl}/files/${file.uuid}`;
+
+        console.log(`Sending email. Download link base: ${baseUrl}`);
 
         await sendMail({
             from: emailFrom,

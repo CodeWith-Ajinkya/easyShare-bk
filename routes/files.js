@@ -39,8 +39,15 @@ router.post("/", (req, res) => {
         try {
             const saved = await file.save();
 
-            // Use environment variable for base URL, fallback to request host
-            const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
+            // FORCE use of APP_BASE_URL for production
+            const baseUrl = process.env.APP_BASE_URL;
+
+            if (!baseUrl) {
+                console.error("FATAL ERROR: APP_BASE_URL is missing in .env!");
+                return res.status(500).json({ error: "Server configuration error" });
+            }
+
+            console.log(`Generated file link. Using Base URL: ${baseUrl}`);
 
             return res.json({
                 file: `${baseUrl}/files/${saved.uuid}`,
