@@ -26,7 +26,7 @@ router.post("/", async (req, res) => {
         file.receiver = emailTo;
         await file.save();
 
-        // Use environment variable for base URL, fallback to request host
+        // Use environment variable for base URL
         const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
         const downloadLink = `${baseUrl}/files/${file.uuid}`;
 

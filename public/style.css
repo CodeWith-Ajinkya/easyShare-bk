@@ -109,8 +109,8 @@ body {
 
 .dark-mode .site-logo {
     mix-blend-mode: normal;
-    filter: brightness(0.9) invert(1);
-    /* Basic invert for logo in dark mode if needed, or just normal */
+    filter: invert(1) brightness(1.2);
+    transition: filter 0.3s;
 }
 
 .upload-container {
