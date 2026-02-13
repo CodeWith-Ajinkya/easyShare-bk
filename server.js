@@ -1,4 +1,9 @@
-require("dotenv").config();
+require("dotenv").config({ override: true });
+console.log("--- ENVIRONMENT DIAGNOSTICS ---");
+console.log("MAIL_USER:", process.env.MAIL_USER);
+console.log("APP_BASE_URL:", process.env.APP_BASE_URL);
+console.log("PORT:", process.env.PORT);
+console.log("-------------------------------");
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
