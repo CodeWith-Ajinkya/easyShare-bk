@@ -26,23 +26,26 @@ router.post("/", async (req, res) => {
         file.receiver = emailTo;
         await file.save();
 
-        // FORCE use of APP_BASE_URL
-        const baseUrl = process.env.APP_BASE_URL;
+        // FORCE use of APP_BASE_URL - ensuring it falls back to the production URL if env is missing locally
+        const baseUrl = process.env.FINAL_RENDER_URL || process.env.APP_BASE_URL || "https://easyshare-backend-cidx.onrender.com";
         if (!baseUrl) {
             console.error("FATAL ERROR: APP_BASE_URL is missing!");
             return res.status(500).json({ error: "Server configuration missing" });
         }
         const downloadLink = `${baseUrl}/files/${file.uuid}`;
 
+        // Uses the configured system email for sending to hide personal email
+        const systemSender = process.env.MAIL_USER;
+
         console.log(`Sending email. Download link base: ${baseUrl}`);
 
         await sendMail({
-            from: emailFrom,
+            from: systemSender, // Use system email for Reply-To as well
             to: emailTo,
             subject: "easyShare File Sharing",
-            text: `${emailFrom} shared a file with you. Download it here: ${downloadLink}`,
+            text: `${systemSender} shared a file with you. Download it here: ${downloadLink}`,
             html: emailTemplate({
-                emailFrom,
+                emailFrom: systemSender, // Display system email in template
                 downloadLink: downloadLink,
                 size: `${parseInt(file.size / 1000)} KB`,
                 expires: "24 hours"
@@ -54,6 +57,7 @@ router.post("/", async (req, res) => {
 
 
     } catch (err) {
+        console.error("Email route error:", err);
         return res.status(500).json({ error: "Server failed!" });
     }
 });

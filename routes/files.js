@@ -40,7 +40,8 @@ router.post("/", (req, res) => {
             const saved = await file.save();
 
             // RENAME to a unique name to ensure no system override
-            const baseUrl = process.env.FINAL_RENDER_URL || process.env.APP_BASE_URL;
+            // Ensure we use the Render URL, with a fallback to the hardcoded string if env vars are missing
+            const baseUrl = process.env.FINAL_RENDER_URL || process.env.APP_BASE_URL || "https://easyshare-backend-cidx.onrender.com";
 
             if (!baseUrl) {
                 console.error("FATAL ERROR: FINAL_RENDER_URL is missing in .env!");
@@ -50,9 +51,8 @@ router.post("/", (req, res) => {
             console.log(`[DEBUG] Generating link with Base: ${baseUrl}`);
 
             return res.json({
-                file: `VERIFIED_LINK:${baseUrl}/files/${saved.uuid}`,
-                uuid: saved.uuid,
-                debug: "FIXED_VERSION_FINAL"
+                file: `${baseUrl}/files/${saved.uuid}`,
+                uuid: saved.uuid
             });
 
 
