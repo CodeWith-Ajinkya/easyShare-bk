@@ -5,57 +5,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>easyShare | Download File</title>
+    <!-- Use same style as main page -->
     <link rel="stylesheet" href="/style.css">
     <script>
         const theme = localStorage.getItem("theme");
         if (theme === "dark") document.documentElement.classList.add("dark-mode");
     </script>
+    <style>
+        .download-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .download-icon-large {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 24px;
+            filter: drop-shadow(0 10px 15px var(--accent-glow));
+        }
+
+        .file-info {
+            margin-bottom: 30px;
+        }
+
+        .file-info h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .file-info p {
+            color: var(--muted-color);
+            font-size: 14px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 18px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 20px -5px rgba(11, 132, 255, 0.4);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 30px -5px rgba(11, 132, 255, 0.5);
+        }
+
+        .error-container {
+            color: #ef4444;
+        }
+    </style>
 </head>
 
-<body>
-    <button id="themeToggle" class="theme-toggle">🌙</button>
+<body class="download-page">
+    <div class="theme-toggle" id="themeToggle">
+        <span class="icon-moon">☀️</span>
+    </div>
+
     <img src="/logo.png" class="site-logo">
 
-    <section class="download">
-        <img class="download__icon" src="/img/download-sd.svg">
-
+    <div class="download-card">
         <% if(locals.error){ %>
-            <div class="error-msg">
-                <h4>
+            <div class="error-container">
+                <div class="feature-icon">⚠️</div>
+                <h2>Oops!</h2>
+                <p>
                     <%= locals.error %>
-                </h4>
+                </p>
+                <a href="/" class="reload-btn"
+                    style="display:inline-block; margin-top:20px; text-decoration:none; color:var(--primary)">Go back
+                    home</a>
             </div>
             <% } else { %>
-                <h2>Your easyShare download is ready</h2>
-                <p>Link expires in 24 hours</p>
+                <img class="download-icon-large" src="/u.svg" alt="Download">
 
-                <div class="download__meta">
-                    <h4>
-                        <%= locals.fileName %>
-                    </h4>
-                    <small>
-                        <%= parseInt(locals.fileSize / 1000) %> KB
-                    </small>
+                <div class="file-info">
+                    <h2>Your download is ready</h2>
+                    <p>Link expires in 24 hours</p>
+                    <div
+                        style="margin-top: 20px; background: rgba(0,0,0,0.03); padding: 15px; border-radius:12px; border: 1px solid var(--border-color)">
+                        <h4 style="margin-bottom: 5px;">
+                            <%= locals.fileName %>
+                        </h4>
+                        <small>
+                            <%= parseInt(locals.fileSize / 1000) %> KB
+                        </small>
+                    </div>
                 </div>
 
-                <div class="send-btn-container">
-                    <a href="/files/download/<%= locals.uuid %>">Download File</a>
-                </div>
+                <a href="/files/download/<%= locals.uuid %>" class="download-btn">Download File</a>
                 <% } %>
-    </section>
+    </div>
 
     <script>
         const themeToggle = document.getElementById("themeToggle");
-        const currentTheme = localStorage.getItem("theme");
-        if (currentTheme === "dark") {
-            themeToggle.innerText = "☀️";
-        }
         themeToggle.addEventListener("click", () => {
-            document.documentElement.classList.toggle("dark-mode");
-            const isDark = document.documentElement.classList.contains("dark-mode");
+            document.body.classList.toggle("dark-mode");
+            const isDark = document.body.classList.contains("dark-mode");
             localStorage.setItem("theme", isDark ? "dark" : "light");
-            themeToggle.innerText = isDark ? "☀️" : "🌙";
+            themeToggle.innerHTML = isDark ? "<span>☀️</span>" : "<span>🌙</span>";
         });
+
+        // Init icon
+        const initialTheme = localStorage.getItem("theme");
+        themeToggle.innerHTML = initialTheme === "dark" ? "<span>☀️</span>" : "<span>🌙</span>";
+        if (initialTheme === "dark") document.body.classList.add("dark-mode");
     </script>
 </body>
 
