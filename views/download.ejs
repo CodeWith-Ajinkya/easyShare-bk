@@ -73,7 +73,6 @@
 </head>
 
 <body class="download-page">
-
     <div class="site-logo-container">
         <!-- Premium Transparent SVG Logo -->
         <svg class="site-logo-svg" viewBox="0 0 250 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -115,12 +114,12 @@
                     <h2>Your download is ready</h2>
                     <p>Link expires in 24 hours</p>
                     <div
-                        style="margin-top: 20px; background: rgba(0,0,0,0.03); padding: 25px; border-radius:18px; border: 1px solid var(--border-color)">
-                        <h4 style="margin-bottom: 5px; font-family: 'Outfit', sans-serif;">
+                        style="margin-top: 20px; background: rgba(0,0,0,0.03); padding: 15px; border-radius:12px; border: 1px solid var(--border-color)">
+                        <h4 style="margin-bottom: 5px;">
                             <%= locals.fileName %>
                         </h4>
-                        <small style="color: var(--muted-color); font-weight: 500;">
-                            <%= parseInt(locals.fileSize / 1024) %> KB
+                        <small>
+                            <%= parseInt(locals.fileSize / 1000) %> KB
                         </small>
                     </div>
                 </div>
